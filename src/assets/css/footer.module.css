@@ -1,17 +1,17 @@
 .footer_grid {
-    display:grid;
-    grid-template-columns: repeat(3, 4fr);
-    grid-column-gap: 3rem;
-    max-width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, 4fr);
+  grid-column-gap: 3rem;
+  max-width: 100%;
 }
 
 .footer_item {
-    display:grid;
+  display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-column-gap: 3rem;
-  background-color:var(--first-color);
+  background-color: var(--first-color);
 }
 
-.legal_info{
-    max-width: 75ch;
+.legal_info {
+  max-width: 75ch;
 }
