@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import styles from "../assets/css/header.module.css";
 
 export default function Header(): JSX.Element {
-  const [lightTheme, setLightTheme] = useState(false);
+  const [lightTheme, setLightTheme] = useState(true);
 
   useEffect(() => {
     document.body.classList.toggle("dark-theme", lightTheme);

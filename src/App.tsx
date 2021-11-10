@@ -4,9 +4,9 @@
 
 import { Fragment } from "react";
 // import styles from "./assets/css/app.module.css";
-// import Footer from "./components/Footer";
+import Footer from "./components/Footer";
 import Header from "./components/Header";
-// import Home from "./components/Home";
+import Home from "./components/Home";
 
 export interface Posts {
   id: number;
@@ -50,8 +50,8 @@ function App(): JSX.Element {
   return (
     <Fragment>
       <Header />
-      {/* <Home /> */}
-      {/* <Footer /> */}
+      <Home />
+      <Footer />
     </Fragment>
   );
 }
