@@ -11,8 +11,21 @@
     overflow: hidden;
   }
 
-  #posts {
-    margin-top: var(--mb-2-5);
+  #new_post_button {
+    background-color: var(--input-color);
+    font-weight: var(--font-semi-bold);
+  }
+
+  #new_post_button:hover {
+    background-color: var(--first-color-alt);
+  }
+
+  #posts_edit {
+    margin-top: 4rem;
+  }
+
+  #posts_create {
+    margin-top: 2.5rem;
   }
 
   #options .content_item {
@@ -53,6 +66,10 @@
 
 #options input {
   line-height: 2rem;
+}
+
+.content_item_hide {
+  display: none;
 }
 
 .form_grid {
@@ -108,13 +125,28 @@
   color: var(--text-color);
 }
 
-.content_syntax {
+.content_syntax_edit {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding-inline-end: var(--mb-1);
+  grid-gap: 0.7rem;
+  align-items: center;
+}
+
+.content_syntax_create {
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
   padding-inline-end: var(--mb-1);
   grid-gap: 0.7rem;
-  align-content: center;
+  align-items: center;
+}
+
+.syntax_toggle {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
 }
 
 button {

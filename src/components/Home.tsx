@@ -13,22 +13,22 @@ import Post from "../types/Post";
 import addMinutesToDate from "../utils/addMinutesToDate";
 import PostListItem from "./PostListItem";
 import { expirationOptions } from "../data/expirationOptions";
+import postDataToEndpoint from "../helper/postDataToEndpoint";
 
 export default function Home(): JSX.Element {
   const [posts, setPosts] = useState<Post[]>([]);
+  const [mode, setMode] = useState("create");
+  const [selectedPost, setSelectedPost] = useState<Post | undefined>();
   const [content, setContent] = useState("");
+  const [formSubmitted, setFormSubmitted] = useState(false);
   const [syntaxHighlighted, setSyntaxHighlight] = useState(false);
   const [syntaxLanguage, setSyntaxLanguage] = useState("None");
+  const [expirationDate, setExpirationDate] = useState<Date>();
   const [postExpiration, setPostExpiration] = useState(0);
   const [postDate, setPostDate] = useState<Date>(new Date());
   const [postPassword, setPostPassword] = useState("");
   const [postTitle, setPostTitle] = useState("");
-  const {
-    reset,
-    handleSubmit,
-    register,
-    formState: { errors, isSubmitting },
-  } = useForm({ reValidateMode: "onChange" });
+  const { reset, register } = useForm({ reValidateMode: "onChange" });
 
   const select_expiration_options = expirationOptions.map((element, index) => (
     <option key={index} className={styles.custom_option} value={element.value}>
@@ -49,7 +49,16 @@ export default function Home(): JSX.Element {
   ));
 
   const view_posts = posts.map((element, index) => (
-    <PostListItem key={index} post={element} />
+    <PostListItem
+      key={index}
+      post={element}
+      posts={posts}
+      postMode={mode}
+      selectedPost={selectedPost}
+      setPosts={(posts: Post[]) => setPosts(posts)}
+      setSelectedPost={(post: Post) => setSelectedPost(post)}
+      handleEdit={() => handleEdit(element)}
+    />
   ));
 
   useEffect(() => {
@@ -64,20 +73,20 @@ export default function Home(): JSX.Element {
     getPostsFromEndpoint("/pastes");
   }, []);
 
-  const postDataToEndpoint = async (endpoint: `/${string}`, post: Post) => {
-    try {
-      const response = await fetch(`${process.env.REACT_APP_API + endpoint}`, {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(post),
-      });
-      setPosts([...posts, (await response.json()).data]);
-    } catch (err) {
-      console.log(err);
-    }
+  const resetInputs = () => {
+    reset({ content: "", name: "", password: "" });
+  };
+
+  const handleEdit = async (post: Post) => {
+    setContent(post.content);
+    setPostTitle(post.title);
+    setPostDate(post.date);
+    setPostPassword(post.password);
+    setSyntaxLanguage(post.language);
+    setSyntaxHighlight(post.language.toLowerCase() === "none" ? false : true);
+    setExpirationDate(post.expiration);
+    setPostExpiration(0);
+    setMode("edit");
   };
 
   const handleFormSubmission = async (e: { preventDefault: () => void }) => {
@@ -92,7 +101,7 @@ export default function Home(): JSX.Element {
     setPostDate(new Date());
 
     const post: Post = {
-      id: nanoid(10),
+      post_id: nanoid(10),
       title: title,
       language: syntaxLanguage,
       expiration: addMinutesToDate(postDate, postExpiration),
@@ -102,50 +111,69 @@ export default function Home(): JSX.Element {
     };
 
     postDataToEndpoint("/pastes", post);
-
-    const getPostsFromEndpoint = async (endpoint: `/${string}`) => {
-      try {
-        const response = await fetch(`${process.env.REACT_APP_API + endpoint}`);
-        setPosts(await response.json());
-      } catch (err) {
-        console.log(err);
-      }
-    };
-    getPostsFromEndpoint("/pastes");
-
-    setPostPassword("");
-    setPostTitle("");
-    setContent("");
+    setPosts([...posts, post]);
+    setFormSubmitted(true);
+    reset({ content: "", name: "", password: "" });
   };
 
   return (
     <section className={styles.content}>
       <div className={styles.content_grid}>
         <form onSubmit={handleFormSubmission} className={styles.form_grid}>
-          <div className={styles.content_syntax}>
-            <label
-              htmlFor="syntax-top"
-              className={
-                syntaxHighlighted
-                  ? styles.content_syntax_label_highlight
-                  : styles.content_syntax_label
-              }
-            >
-              Syntax Highlighting
-            </label>
-            <input
-              type="checkbox"
-              name="syntax-top"
-              id="toggle"
-              onClick={() => {
-                setSyntaxHighlight(!syntaxHighlighted);
-              }}
-            />
+          <div
+            className={
+              mode === "edit"
+                ? styles.content_syntax_edit
+                : styles.content_syntax_create
+            }
+          >
+            {mode === "edit" && (
+              <button
+                className={styles.post_create}
+                id={styles.new_post_button}
+                onClick={() => {
+                  setMode("create");
+                  resetInputs();
+                }}
+              >
+                Create Post
+              </button>
+            )}
+            {mode === "edit" && (
+              <div className={styles.date_info}>
+                {/* {postDate.toLocaleString()} {expirationDate?.toLocaleString()} */}
+              </div>
+            )}
+
+            <div className={styles.syntax_toggle}>
+              <label
+                htmlFor="syntax-top"
+                className={
+                  syntaxHighlighted
+                    ? styles.content_syntax_label_highlight
+                    : styles.content_syntax_label
+                }
+              >
+                Syntax Highlighting
+              </label>
+              <input
+                type="checkbox"
+                id="toggle"
+                onClick={() => {
+                  setSyntaxHighlight(!syntaxHighlighted);
+                }}
+                {...register("syntax-top")}
+              />
+            </div>
           </div>
           <div className={styles.content_item}>
-            <label htmlFor="content">New Post</label>
+            <label htmlFor={syntaxHighlighted ? "content-code" : "content"}>
+              {mode === "create" ? "New Post" : "Edit Post"}
+            </label>
             {syntaxHighlighted ? (
               <Editor
+                {...register("content-code")}
+                id="content-code"
                 value={content}
                 onValueChange={(code) => setContent(code)}
                 highlight={(code) => highlight(code, syntaxLanguage)}
@@ -160,7 +188,7 @@ export default function Home(): JSX.Element {
               />
             ) : (
               <textarea
-                name="content"
+                {...register("content")}
                 id="content"
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
@@ -170,19 +198,27 @@ export default function Home(): JSX.Element {
               ></textarea>
             )}
           </div>
+
           <div className={styles.content_item} id={styles.options}>
             <h3>Optional Settings</h3>
-            <div className={styles.content_item}>
+            <div
+              className={
+                syntaxHighlighted
+                  ? styles.content_item
+                  : styles.content_item_hide
+              }
+            >
               <label htmlFor="syntax-bottom" className={styles.input_label}>
                 Syntax Highlighting:
               </label>
               <select
-                name="syntax"
+                {...register("syntax")}
                 id="syntax"
                 className={styles.select}
                 onChange={(event) => {
                   setSyntaxLanguage(event.target.value);
                 }}
+                disabled={!syntaxHighlighted}
               >
                 {select_syntax_options}
               </select>
@@ -192,7 +228,7 @@ export default function Home(): JSX.Element {
                 Post Expiration:
               </label>
               <select
-                name="expiration"
+                {...register("expiration")}
                 id="expiration"
                 onChange={(event) =>
                   setPostExpiration(parseInt(event.target.value))
@@ -207,7 +243,7 @@ export default function Home(): JSX.Element {
                 Password:
               </label>
               <input
-                name="password"
+                {...register("password")}
                 type="text"
                 value={postPassword}
                 onChange={(event) => setPostPassword(event.target.value)}
@@ -219,7 +255,7 @@ export default function Home(): JSX.Element {
                 Post Title:
               </label>
               <input
-                name="name"
+                {...register("name")}
                 type="text"
                 value={postTitle}
                 onChange={(event) => setPostTitle(event.target.value)}
@@ -229,12 +265,15 @@ export default function Home(): JSX.Element {
             <div className={styles.content_item}>
               <span></span>
               <button type="submit" className="button">
-                Create Post
+                {mode === "create" ? "Create Post" : "Update Post"}
               </button>
             </div>
           </div>
         </form>
-        <div className={styles.content_item} id={styles.posts}>
+        <div
+          className={styles.content_item}
+          id={mode === "edit" ? styles.posts_edit : styles.posts_create}
+        >
           {view_posts}
         </div>
       </div>

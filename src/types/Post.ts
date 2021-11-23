@@ -1,5 +1,5 @@
 export default interface Post{
-    id: string,
+    post_id: string,
     title: string,
     language: string,
     expiration: Date,
