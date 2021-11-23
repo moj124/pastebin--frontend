@@ -20,10 +20,10 @@ export default function Home(): JSX.Element {
   const [mode, setMode] = useState("create");
   const [selectedPost, setSelectedPost] = useState<Post | undefined>();
   const [content, setContent] = useState("");
-  const [formSubmitted, setFormSubmitted] = useState(false);
+  // const [formSubmitted, setFormSubmitted] = useState(false);
   const [syntaxHighlighted, setSyntaxHighlight] = useState(false);
   const [syntaxLanguage, setSyntaxLanguage] = useState("None");
-  const [expirationDate, setExpirationDate] = useState<Date>();
+  const [, setExpirationDate] = useState<Date>();
   const [postExpiration, setPostExpiration] = useState(0);
   const [postDate, setPostDate] = useState<Date>(new Date());
   const [postPassword, setPostPassword] = useState("");
@@ -112,7 +112,7 @@ export default function Home(): JSX.Element {
 
     postDataToEndpoint("/pastes", post);
     setPosts([...posts, post]);
-    setFormSubmitted(true);
+    // setFormSubmitted(true);
     reset({ content: "", name: "", password: "" });
   };
 

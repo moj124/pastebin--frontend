@@ -1,6 +1,6 @@
-import { capitalize } from "./capitalize";
+import capitalize from "./capitalize";
 
-test("capitalize returns a string, capitalzing the first letter of the passed string", () => {
+test("capitalize returns a string, capitalizing the first letter of the passed string", () => {
   expect(capitalize("World")).toBe("World");
   expect(capitalize("Richard")).toBe("Richard");
   expect(capitalize("Academy")).toBe("Academy");
