@@ -19,7 +19,7 @@ export default function Home(): JSX.Element {
   const [posts, setPosts] = useState<Post[]>([]);
   const [mode, setMode] = useState("create");
   const [selectedPost, setSelectedPost] = useState<Post | undefined>();
-  const [creationPost, setCreationPost] = useState<Post | undefined>();
+  // const [creationPost, setCreationPost] = useState<Post | undefined>();
 
   const [content, setContent] = useState("");
   const [syntaxHighlighted, setSyntaxHighlight] = useState(false);
