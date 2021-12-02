@@ -1,33 +1,35 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { nanoid } from "nanoid";
-import styles from "../assets/css/home.module.css";
+import { expirationOptions } from "../data/expirationOptions";
 import capitalize from "../utils/capitalize";
+import addMinutesToDate from "../utils/addMinutesToDate";
+import highlight from "../utils/highlight";
 import Editor from "react-simple-code-editor";
+import postDataToEndpoint from "../helper/postDataToEndpoint";
 import SyntaxHighlighter from "react-syntax-highlighter";
+import Post from "../types/Post";
+import PostListItem from "./PostListItem";
+import styles from "../assets/css/home.module.css";
 import "prismjs/themes/prism.css";
 // import "prismjs/components/prism-clike";
 // import "prismjs/components/prism-javascript";
-import highlight from "../utils/highlight";
-import Post from "../types/Post";
-import addMinutesToDate from "../utils/addMinutesToDate";
-import PostListItem from "./PostListItem";
-import { expirationOptions } from "../data/expirationOptions";
-import postDataToEndpoint from "../helper/postDataToEndpoint";
 
 export default function Home(): JSX.Element {
   const [posts, setPosts] = useState<Post[]>([]);
   const [mode, setMode] = useState("create");
   const [selectedPost, setSelectedPost] = useState<Post | undefined>();
+  const [creationPost, setCreationPost] = useState<Post | undefined>();
+
   const [content, setContent] = useState("");
-  // const [formSubmitted, setFormSubmitted] = useState(false);
   const [syntaxHighlighted, setSyntaxHighlight] = useState(false);
   const [syntaxLanguage, setSyntaxLanguage] = useState("None");
   const [, setExpirationDate] = useState<Date>();
-  const [postExpiration, setPostExpiration] = useState(0);
   const [postDate, setPostDate] = useState<Date>(new Date());
   const [postPassword, setPostPassword] = useState("");
   const [postTitle, setPostTitle] = useState("");
+
+  const [postExpiration, setPostExpiration] = useState(0);
   const { reset, register } = useForm({ reValidateMode: "onChange" });
 
   const select_expiration_options = expirationOptions.map((element, index) => (
@@ -274,7 +276,11 @@ export default function Home(): JSX.Element {
           className={styles.content_item}
           id={mode === "edit" ? styles.posts_edit : styles.posts_create}
         >
-          {view_posts}
+          {posts.length !== 0 ? (
+            view_posts
+          ) : (
+            <h4>No valid posts have been created...</h4>
+          )}
         </div>
       </div>
     </section>
